@@ -1,4 +1,9 @@
 ---
+
+- name: Create Network
+  docker_network:
+    name: "{{ network_name }}"
+    
 # Lancement d'un conteneur Postgres
 - name : "Launch PostGres database container"
   docker_container:
@@ -10,6 +15,9 @@
       POSTGRES_DB: "{{ pg_databse }}"
       POSTGRES_USER: "{{ pg_user }}"
       POSTGRES_PASSWORD: "{{ pg_password }}"
+      
+    networks:
+      - name: "{{ network_name }}"
     volumes:
       - "{{ pg_data }}:/var/lib/postgresql/data"
 
@@ -21,8 +29,8 @@
     ports:
       - "{{ odoo_port }}:8069"
     env:
-      HOST: pg_host
+      HOST: "{{ pg_container }}"
       USER: "{{ pg_user }}"
       PASSWORD: "{{ pg_password }}"
-    links:
-      - "{{ pg_container }}: pg_host"
+    networks:
+      - name: "{{ network_name }}"
